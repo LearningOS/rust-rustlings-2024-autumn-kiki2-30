@@ -14,7 +14,6 @@
 // Execute `rustlings hint hashmaps3` or use the `hint` watch subcommand for a
 // hint.
 
-// I AM NOT DONE
 
 use std::collections::HashMap;
 
@@ -25,20 +24,34 @@ struct Team {
 }
 
 fn build_scores_table(results: String) -> HashMap<String, Team> {
-    // The name of the team is the key and its associated struct is the value.
+    // 球队名称作为键，球队结构体作为值的 HashMap。
     let mut scores: HashMap<String, Team> = HashMap::new();
 
+    // 遍历每场比赛的结果
     for r in results.lines() {
         let v: Vec<&str> = r.split(',').collect();
-        let team_1_name = v[0].to_string();
-        let team_1_score: u8 = v[2].parse().unwrap();
-        let team_2_name = v[1].to_string();
-        let team_2_score: u8 = v[3].parse().unwrap();
-        // TODO: Populate the scores table with details extracted from the
-        // current line. Keep in mind that goals scored by team_1
-        // will be the number of goals conceded from team_2, and similarly
-        // goals scored by team_2 will be the number of goals conceded by
-        // team_1.
+        let team_1_name = v[0].to_string();        // 球队 1 名称
+        let team_1_score: u8 = v[2].parse().unwrap(); // 球队 1 得分
+        let team_2_name = v[1].to_string();        // 球队 2 名称
+        let team_2_score: u8 = v[3].parse().unwrap(); // 球队 2 得分
+
+        // 更新球队 1 的进球和失球
+        scores.entry(team_1_name.clone()).and_modify(|team| {
+            team.goals_scored += team_1_score;        // 增加进球数
+            team.goals_conceded += team_2_score;      // 增加失球数
+        }).or_insert(Team {
+            goals_scored: team_1_score,               // 初始化进球数
+            goals_conceded: team_2_score,             // 初始化失球数
+        });
+
+        // 更新球队 2 的进球和失球
+        scores.entry(team_2_name.clone()).and_modify(|team| {
+            team.goals_scored += team_2_score;        // 增加进球数
+            team.goals_conceded += team_1_score;      // 增加失球数
+        }).or_insert(Team {
+            goals_scored: team_2_score,               // 初始化进球数
+            goals_conceded: team_1_score,             // 初始化失球数
+        });
     }
     scores
 }
